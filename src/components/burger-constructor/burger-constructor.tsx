@@ -1,45 +1,90 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import { getConstructorItemsSelector } from '../slice/constructorSlice';
+import {
+  getOrderModalDataSelector,
+  getOrderRequestSelector,
+  getOrders,
+  orderBurger
+} from '../slice/orderSlice';
+import { useNavigate } from 'react-router-dom';
+import { getCookie } from '../../utils/cookie';
+import { getIsAuthSelector } from '../slice/userSlice';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const orderRequest = false;
-
-  const orderModalData = null;
-
-  const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
+  const { bun, ingredients } = useSelector(getConstructorItemsSelector);
+  const orderRequest = useSelector(getOrderRequestSelector);
+  const orderModalData = useSelector(getOrderModalDataSelector);
+  const isAuth = useSelector(getIsAuthSelector);
 
   const price = useMemo(
     () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
+      (bun ? bun.price * 2 : 0) +
+      ingredients.reduce(
         (s: number, v: TConstructorIngredient) => s + v.price,
         0
       ),
-    [constructorItems]
+    [bun, ingredients]
   );
 
-  return null;
+  const onOrderClick = async () => {
+    if (!bun || orderRequest) return;
+    // Проверка на авторизацию пользовтеля. Пользователь может собрать бургер, но при оформлении заказа его кидает на старницу логина/регистрации
+    // const accessToken = getCookie('accessToken');
+
+    if (!isAuth) {
+      navigate('/login');
+      return;
+    }
+
+    if (ingredients.length === 0) {
+      console.error('Добавьте хотя бы одну начинку');
+    }
+
+    const ingredientsIds = [bun._id, ...ingredients.map((i) => i._id), bun._id];
+
+    // try {
+    //   await dispatch(orderBurger(ingredientsIds)).unwrap();
+    //   console.log(
+    //     '[BurgerConstructor] Заказ оформлен успешно. Обновляю историю заказов...'
+    //   );
+    //   dispatch(getOrders());
+    // } catch (error) {
+    //   console.error(
+    //     '[BurgerConstructor Error] Ошибка при оформлении заказа:',
+    //     error
+    //   );
+    // }
+
+    console.log('[Order Dispatch] Отправка заказа с ID:', ingredients);
+    dispatch(orderBurger(ingredientsIds));
+  };
+
+  const buttonOrderDisable = useMemo(
+    () => !bun || ingredients.length === 0,
+    [bun, ingredients]
+  );
+
+  const closeOrderModal = () => {
+    dispatch(resetConstructor());
+  };
 
   return (
     <BurgerConstructorUI
       price={price}
       orderRequest={orderRequest}
-      constructorItems={constructorItems}
+      constructorItems={{ bun, ingredients }}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
     />
   );
 };
+function resetConstructor(): any {
+  throw new Error('Function not implemented.');
+}

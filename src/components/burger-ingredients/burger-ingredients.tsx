@@ -1,14 +1,45 @@
-import { useState, useRef, useEffect, FC } from 'react';
+import { useState, useRef, useEffect, FC, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useDispatch, useSelector, UseSelector } from 'react-redux';
+import { getIngredientsSelector } from '../slice/sliceIngredients';
+import { UseDispatch } from 'react-redux';
+import { addIngredients, setBun } from '../slice/constructorSlice';
+import { nanoid } from '@reduxjs/toolkit';
 
-import { TTabMode } from '@utils-types';
+import { TIngredient, TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  const ingredients = useSelector(getIngredientsSelector);
+
+  console.log('Ингредиенты пришли в компонент:', ingredients);
+
+  /** Взяты переменные из стора */
+  const buns = useMemo(
+    () => ingredients.filter((item) => item.type === 'bun'),
+    [ingredients]
+  );
+  const mains = useMemo(
+    () => ingredients.filter((item) => item.type === 'main'),
+    [ingredients]
+  );
+  const sauces = useMemo(
+    () => ingredients.filter((item) => item.type === 'sauce'),
+    [ingredients]
+  );
+
+  // const dispatch = useDispatch();
+  // const heandleAdd = (ingredient: TIngredient) => {
+  //   const igredientGeneraidId = {
+  //     ...ingredient,
+  //     id: nanoid()
+  //   };
+  //   if (ingredient.type === 'bun') {
+  //     dispatch(setBun(igredientGeneraidId));
+  //   } else {
+  //     dispatch(addIngredients(igredientGeneraidId));
+  //   }
+  // };
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
@@ -47,7 +78,7 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return null;
+  // return null;
 
   return (
     <BurgerIngredientsUI

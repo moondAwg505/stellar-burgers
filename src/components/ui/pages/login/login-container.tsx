@@ -1,24 +1,21 @@
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
-import { RegisterUI } from '@ui-pages';
+import { LoginUI } from '@ui-pages';
 import { useSelector } from 'react-redux';
 import {
-  registerUser,
-  getRegisterErrorSelector,
+  loginUser,
+  getLoginErrorSelector,
   getIsAuthSelector
-} from '../../components/slice/userSlice';
+} from '../../../slice/userSlice';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useDispatch } from '../../services/store';
+import { useDispatch } from '../../../../services/store';
 
-export const Register: FC = () => {
+export const Login: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isAuth = useSelector(getIsAuthSelector);
-
-  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const error = useSelector(getRegisterErrorSelector);
+  const error = useSelector(getLoginErrorSelector);
 
   // Отправление пользователя на страницу профиля после входа/регистрации
   useEffect(() => {
@@ -30,34 +27,31 @@ export const Register: FC = () => {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 
-    if (!userName || !email || !password) {
+    if (!email || !password) {
       return;
     }
 
     console.log('Dispatching login...');
     dispatch(
-      registerUser({
-        name: userName,
+      loginUser({
         email: email,
         password: password
       })
     );
   };
 
-  // Проверка если роут не защещеён ProtectedRoute
+  // Проверка если роут не защищён ProtectedRoute
   if (isAuth) {
     return <Navigate to='/' replace />;
   }
 
   return (
-    <RegisterUI
+    <LoginUI
       errorText={error || undefined}
       email={email}
-      userName={userName}
-      password={password}
       setEmail={setEmail}
+      password={password}
       setPassword={setPassword}
-      setUserName={setUserName}
       handleSubmit={handleSubmit}
     />
   );
