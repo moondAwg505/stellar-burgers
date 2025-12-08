@@ -44,7 +44,9 @@ export const constructorBurgerSlice = createSlice({
       const [moveItem] = ingredients.splice(from, 1);
       ingredients.splice(to, 0, moveItem);
       state.ingredients = ingredients;
-    }
+    },
+
+    resetConstructor: () => initialState
   }
 
   //   selectors: {
@@ -52,8 +54,13 @@ export const constructorBurgerSlice = createSlice({
   //   }
 });
 
-export const { addIngredients, setBun, deleteIngredient, moveIngredient } =
-  constructorBurgerSlice.actions;
+export const {
+  addIngredients,
+  setBun,
+  deleteIngredient,
+  moveIngredient,
+  resetConstructor
+} = constructorBurgerSlice.actions;
 export const getConstructorItemsSelector = (state: RootState) =>
   state.burgerConstructor;
 export default constructorBurgerSlice.reducer;

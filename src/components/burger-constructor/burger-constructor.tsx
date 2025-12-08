@@ -2,8 +2,12 @@ import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useSelector, useDispatch } from '../../services/store';
-import { getConstructorItemsSelector } from '../slice/constructorSlice';
 import {
+  getConstructorItemsSelector,
+  resetConstructor
+} from '../slice/constructorSlice';
+import {
+  clearOrderModalData,
   getOrderModalDataSelector,
   getOrderRequestSelector,
   getOrders,
@@ -44,6 +48,7 @@ export const BurgerConstructor: FC = () => {
 
     if (ingredients.length === 0) {
       console.error('Добавьте хотя бы одну начинку');
+      return;
     }
 
     const ingredientsIds = [bun._id, ...ingredients.map((i) => i._id), bun._id];
@@ -71,6 +76,7 @@ export const BurgerConstructor: FC = () => {
   );
 
   const closeOrderModal = () => {
+    dispatch(clearOrderModalData());
     dispatch(resetConstructor());
   };
 
@@ -85,6 +91,3 @@ export const BurgerConstructor: FC = () => {
     />
   );
 };
-function resetConstructor(): any {
-  throw new Error('Function not implemented.');
-}

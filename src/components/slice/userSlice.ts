@@ -29,7 +29,7 @@ const initialState: TUserState = {
 // --- THUNKS ---
 
 // Регистрация
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<TUser, TRegisterData>(
   'user/register',
   async (data: TRegisterData) => {
     const res = await registerUserApi(data);
@@ -40,7 +40,7 @@ export const registerUser = createAsyncThunk(
 );
 
 // Логин
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<TUser, TLoginData>(
   'user/login',
   async (data: TLoginData) => {
     const res = await loginUserApi(data);
@@ -51,13 +51,16 @@ export const loginUser = createAsyncThunk(
 );
 
 // Получение пользователя
-export const getUser = createAsyncThunk('user/getUser', async () => {
-  const res = await getUserApi();
-  return res.user;
-});
+export const getUser = createAsyncThunk<TUser, void>(
+  'user/getUser',
+  async () => {
+    const res = await getUserApi();
+    return res.user;
+  }
+);
 
 // Обновление пользователя
-export const updateUser = createAsyncThunk(
+export const updateUser = createAsyncThunk<TUser, Partial<TRegisterData>>(
   'user/updateUser',
   async (data: Partial<TRegisterData>) => {
     const res = await updateUserApi(data);
@@ -66,14 +69,14 @@ export const updateUser = createAsyncThunk(
 );
 
 // Выход
-export const logout = createAsyncThunk('user/logout', async () => {
+export const logout = createAsyncThunk<void, void>('user/logout', async () => {
   await logoutApi();
   deleteCookie('accessToken');
   localStorage.removeItem('refreshToken');
 });
 
 // Проверка авторизации
-export const checkUserAuth = createAsyncThunk(
+export const checkUserAuth = createAsyncThunk<void, void>(
   'user/checkUserAuth',
   async (_, { dispatch }) => {
     if (getCookie('accessToken')) {

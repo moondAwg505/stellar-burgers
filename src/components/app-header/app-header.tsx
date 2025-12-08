@@ -9,6 +9,7 @@ import {
   Logo,
   ProfileIcon
 } from '@zlden/react-developer-burger-ui-components';
+import { isPending } from '@reduxjs/toolkit';
 
 export const AppHeader: FC = () => {
   const location = useLocation();
@@ -24,7 +25,13 @@ export const AppHeader: FC = () => {
       <nav className={`${styles.menu} p-4`}>
         <div className={styles.menu_part_left}>
           {/* Конструктор */}
-          <NavLink to='/' end className={styles.link}>
+          <NavLink
+            to='/'
+            end
+            className={({ isActive, isPending }) =>
+              `${styles.link} ${isPending ? styles.pending : isActive ? styles.link_active : ''}`
+            }
+          >
             <BurgerIcon type={getIconType('/')} />
             <p
               className={`text text_type_main-default ml-2 mr-10 ${getIconType('/') === 'secondary' ? 'text_color_inactive' : ''}`}
@@ -34,7 +41,13 @@ export const AppHeader: FC = () => {
           </NavLink>
 
           {/* Лента заказов */}
-          <NavLink to='/feed' end className={styles.link}>
+          <NavLink
+            to='/feed'
+            end
+            className={({ isActive, isPending }) =>
+              `${styles.link} ${isPending ? styles.pending : isActive ? styles.link_active : ''}`
+            }
+          >
             <ListIcon type={getIconType('/feed')} />
             <p
               className={`text text_type_main-default ml-2 ${getIconType('/feed') === 'secondary' ? 'text_color_inactive' : ''}`}
@@ -49,7 +62,13 @@ export const AppHeader: FC = () => {
         </div>
 
         {/* Профиль */}
-        <NavLink to='/profile' end className={styles.link_position_last}>
+        <NavLink
+          to='/profile'
+          end
+          className={({ isActive, isPending }) =>
+            `${styles.link} ${isPending ? styles.pending : isActive ? styles.link_active : ''}`
+          }
+        >
           <ProfileIcon type={getIconType('/profile')} />
           <p
             className={`text text_type_main-default ml-2 ${getIconType('/profile') === 'secondary' ? 'text_color_inactive' : ''}`}

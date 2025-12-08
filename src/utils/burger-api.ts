@@ -272,4 +272,4 @@ export const logoutApi = () =>
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
 
-export type { TOrder };
+export type { TOrder, TFeedsResponse };
