@@ -4,7 +4,8 @@ import { BurgerConstructorUI } from '@ui';
 import { useSelector, useDispatch } from '../../services/store';
 import {
   getConstructorItemsSelector,
-  resetConstructor
+  resetConstructor,
+  getIngredientCounts
 } from '../slice/constructorSlice';
 import {
   clearOrderModalData,
@@ -25,6 +26,7 @@ export const BurgerConstructor: FC = () => {
   const orderRequest = useSelector(getOrderRequestSelector);
   const orderModalData = useSelector(getOrderModalDataSelector);
   const isAuth = useSelector(getIsAuthSelector);
+  const ingredientsCounts = useSelector(getIngredientCounts);
 
   const price = useMemo(
     () =>
@@ -76,8 +78,8 @@ export const BurgerConstructor: FC = () => {
   );
 
   const closeOrderModal = () => {
+    // очистка данных о номере заказа(чтобы закрыть модалку)
     dispatch(clearOrderModalData());
-    dispatch(resetConstructor());
   };
 
   return (

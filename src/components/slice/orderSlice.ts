@@ -8,6 +8,7 @@ import {
 } from '@api';
 import { RootState } from 'src/services/store';
 import { orderBurgerApi } from '@api';
+import { resetConstructor } from './constructorSlice';
 
 type TFeedState = {
   orders: TOrder[];
@@ -43,9 +44,17 @@ export const getOrders = createAsyncThunk<TOrder[], void>(
 // Thunk для создания нового заказа
 export const orderBurger = createAsyncThunk<TOrder, string[]>(
   'order/orderBurger',
-  async (ingredients: string[]) => {
-    const response = await orderBurgerApi(ingredients);
-    return response.order;
+  async (ingredients: string[], { dispatch }) => {
+    try {
+      const response = await orderBurgerApi(ingredients);
+
+      // Очищаем конструктор при успешном ответе сервера
+      dispatch(resetConstructor());
+
+      return response.order;
+    } catch (error) {
+      throw error;
+    }
   }
 );
 
@@ -154,3 +163,6 @@ export const getOrderRequestSelector = (state: RootState) =>
   state.feed.orderRequest;
 export const getOrderModalDataSelector = (state: RootState) =>
   state.feed.currentOrder;
+export const getFeedTotalSelector = (state: RootState) => state.feed.total;
+export const getFeedTotalTodaySelector = (state: RootState) =>
+  state.feed.totalToday;

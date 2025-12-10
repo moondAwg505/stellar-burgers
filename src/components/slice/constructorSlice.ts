@@ -46,7 +46,11 @@ export const constructorBurgerSlice = createSlice({
       state.ingredients = ingredients;
     },
 
-    resetConstructor: () => initialState
+    // Сброс ингредиентов после заказа
+    resetConstructor: (state) => {
+      state.bun = null;
+      state.ingredients = [];
+    }
   }
 
   //   selectors: {
@@ -63,4 +67,23 @@ export const {
 } = constructorBurgerSlice.actions;
 export const getConstructorItemsSelector = (state: RootState) =>
   state.burgerConstructor;
+
+// Подсчёт игрнедиентов
+export const getIngredientCounts = (
+  state: RootState
+): Record<string, number> => {
+  const counts: Record<string, number> = {};
+  const { bun, ingredients } = state.burgerConstructor;
+
+  ingredients.forEach((item) => {
+    counts[item._id] = (counts[item._id] || 0) + 1;
+  });
+
+  if (bun) {
+    counts[bun._id] = 2;
+  }
+
+  return counts;
+};
+
 export default constructorBurgerSlice.reducer;

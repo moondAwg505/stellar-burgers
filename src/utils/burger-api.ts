@@ -62,6 +62,7 @@ export const fetchWithRefresh = async <T>(
 
     // Если ошибка — 403 (Forbidden) или токен истек
     if (
+      errorBody.message === 'jwt expired' ||
       errorBody.message === 'срок действия токена истек' ||
       errorBody.message === 'Вы должны быть авторизованы'
     ) {
@@ -86,7 +87,7 @@ export const fetchWithRefresh = async <T>(
       };
 
       const res = await fetch(url, newOptions);
-      return await checkResponse(res);
+      return await checkResponse<T>(res);
     } else {
       // Если ошибка не связана с токеном, бросаем ее дальше
       throw err;
