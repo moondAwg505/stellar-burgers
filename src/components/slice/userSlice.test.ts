@@ -1,12 +1,17 @@
 import userReducer, { loginUser, logout } from './userSlice';
+import { initialState } from './userSlice';
 
 describe('Тесты для userSlice', () => {
-  const initialState = {
-    isAuthChecked: false,
-    user: null,
-    loginError: null,
-    registerError: null
-  };
+  // const initialState = {
+  //   isAuthChecked: false,
+  //   user: null,
+  //   loginError: null,
+  //   registerError: null
+  // };
+
+  it('должен вернуть начальное состояние', () => {
+    expect(userReducer(undefined, { type: 'unknown' })).toEqual(initialState);
+  });
 
   test('loginUser.fulfilled: должен записать пользователя', () => {
     const mockUser = { email: 'test@test.ru', name: 'Test' };

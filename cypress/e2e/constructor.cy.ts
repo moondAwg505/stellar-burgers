@@ -1,5 +1,5 @@
 describe('Тестирование конструктора бургера и заказа', () => {
-  // JSON
+  // json
   const BUN_NAME = 'Краторная булка N-200i';
   const FILLING_NAME_1 = 'Мясо бессмертных моллюсков Protostomia';
   const FILLING_NAME_2 = 'Соус традиционный галактический';
@@ -7,12 +7,15 @@ describe('Тестирование конструктора бургера и з
   const CONSTRUCTOR_TEXT_FOR_DROP = 'Выберите булки';
   const CONSTRUCTOR_INGREDIENT_CLASS = '.constructor-element';
 
-  // РАБОЧИЕ СЕЛЕКТОРЫ (Работают!)
+  // СЕЛЕКТОРЫ UI
+  const CONSTRUCTOR_AREA_CLASS = '.oRJKB4wIRrzdy80OQfg6';
   const MODAL_CLASS = '.xqsNTMuGR8DdWtMkOGiM';
   const CLOSE_BUTTON_CLASS = '.Z7mUFPBZScxutAKTLKHN';
   const ORDER_BUTTON_SELECTOR = '.button_type_primary.button_size_large';
   const ADD_BUTTON_CLASS = '.common_button';
-  const MODALS_CONTAINER_ID = '#modals';
+
+  // Функция для получения контейнера конструктора
+  const getConstructorArea = () => cy.get(CONSTRUCTOR_AREA_CLASS);
 
   beforeEach(() => {
     cy.intercept('GET', '**/ingredients', { fixture: 'ingredients.json' }).as(
@@ -20,34 +23,39 @@ describe('Тестирование конструктора бургера и з
     );
     cy.visit('/');
     cy.wait('@getIngredients');
-    // ждём пока булочка станет видимой
     cy.contains(BUN_NAME, { timeout: 10000 }).should('be.visible');
   });
 
   // ТЕСТИРОВАНИЕ КОНСТРУКТОРА
-  it('должен добавить булку и начинку в конструктор через клик', () => {
-    // Добавляем булку
+  it('должен добавить булку и начинку в конструктор через клик и проверить содержимое', () => {
+    // Добавляем ингредиенты
     cy.contains(BUN_NAME).parents('li').find(ADD_BUTTON_CLASS).click();
-
-    // Добавление первой начинки
     cy.contains(FILLING_NAME_1).parents('li').find(ADD_BUTTON_CLASS).click();
-
-    // Добавление сосуса
     cy.contains(FILLING_NAME_2).parents('li').find(ADD_BUTTON_CLASS).click();
 
-    // проверка на содержание двух начинок
-    cy.contains('Соберите бургер')
-      .parents('div')
+    // Проверка количества элементов
+    getConstructorArea()
       .find(CONSTRUCTOR_INGREDIENT_CLASS)
       .should('have.length.at.least', 4);
+
+    // ПРОВЕРКА СОДЕРЖИМОГО
+    getConstructorArea().should('contain', BUN_NAME);
+    getConstructorArea().should('contain', FILLING_NAME_1);
+    getConstructorArea().should('contain', FILLING_NAME_2);
   });
 
-  // ТЕСТИРОВАНИЕ МОДАЛЬНЫХ ОКОН (Работают!)
-
-  it('должен открыть модальное окно ингредиента при клике', () => {
+  // ТЕСТИРОВАНИЕ МОДАЛЬНЫХ ОКОН (РАБОТАЕТ)
+  it('должен открыть модальное окно ингредиента при клике и проверить детали', () => {
     cy.contains(BUN_NAME).click();
     cy.get(MODAL_CLASS).should('be.visible');
+
     cy.contains(MODAL_TITLE).should('be.visible');
+    cy.contains(BUN_NAME).should('be.visible');
+
+    cy.contains('80').should('be.visible');
+    cy.contains('24').should('be.visible');
+    cy.contains('53').should('be.visible');
+    cy.contains('420').should('be.visible');
   });
 
   it('должен закрыть модальное окно по клику на крестик', () => {
@@ -56,7 +64,6 @@ describe('Тестирование конструктора бургера и з
     cy.get(MODAL_CLASS).should('not.exist');
   });
 
-  // Закрытие нажатием кнопки escape
   it('должен закрыть модальное окно по нажатию ESC', () => {
     cy.contains(BUN_NAME).click();
     cy.get(MODAL_CLASS).should('be.visible');
@@ -66,9 +73,9 @@ describe('Тестирование конструктора бургера и з
     cy.get(MODAL_CLASS).should('not.exist');
   });
 
-  // ТЕСТИРОВАНИЕ СОЗДАНИЯ ЗАКАЗА
+  // ТЕСТИРОВАНИЕ СОЗДАНИЯ ЗАКАЗА (РАБОТАЕТ)
   it('должен оформить заказ, показать номер и очистить конструктор', () => {
-    // Авторизация
+    // ...
     cy.intercept('GET', '**/auth/user', { fixture: 'user.json' });
     cy.intercept('POST', '**/orders', { fixture: 'order.json' }).as(
       'createOrder'
@@ -80,28 +87,19 @@ describe('Тестирование конструктора бургера и з
     cy.wait('@getIngredients');
     cy.contains(BUN_NAME, { timeout: 10000 }).should('be.visible');
 
-    // Сборка бьургера(имена из JSON)
     cy.log('Добавляем булку и начинку для заказа кликами');
-
-    // Добавляем булку
     cy.contains(BUN_NAME).parents('li').find(ADD_BUTTON_CLASS).click();
-
-    // Добавляем начинку
     cy.contains(FILLING_NAME_1).parents('li').find(ADD_BUTTON_CLASS).click();
 
-    // ОФОРМЛЯЕМ и ПРОВЕРЯЕМ
     cy.get(ORDER_BUTTON_SELECTOR).should('not.be.disabled').click();
     cy.wait('@createOrder');
 
-    // Проверка заказа
     cy.get(MODAL_CLASS).should('be.visible');
     cy.contains('12345').should('be.visible');
 
-    // ЗАкрытие модал после оформления заказа
     cy.get(CLOSE_BUTTON_CLASS).click();
     cy.get(MODAL_CLASS).should('not.exist');
 
-    // проверка пустогого консртуктора
     cy.contains(CONSTRUCTOR_TEXT_FOR_DROP).should('be.visible');
   });
 });

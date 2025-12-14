@@ -1,11 +1,17 @@
 import ingredientsReducer, { getIngredients } from './sliceIngredients'; // Проверь путь импорта
+import { initialState } from './sliceIngredients';
 
 describe('Тесты для ingredientsSlice', () => {
-  const initialState = {
-    ingredients: [],
-    isLoading: false,
-    error: null
-  };
+  // const initialState = {
+  //   ingredients: [],
+  //   isLoading: false,
+  //   error: null
+  // };
+  it('должен вернуть начальное состояние', () => {
+    expect(ingredientsReducer(undefined, { type: 'unknown' })).toEqual(
+      initialState
+    );
+  });
 
   test('Должен менять isLoading на true при getIngredients.pending', () => {
     const action = { type: getIngredients.pending.type };

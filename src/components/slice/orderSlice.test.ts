@@ -1,16 +1,20 @@
 import orderReducer, { orderBurger, getFeed } from './orderSlice';
+import { initialState } from './orderSlice';
 
 describe('Тесты для orderSlice', () => {
-  const initialState = {
-    orders: [],
-    total: 0,
-    totalToday: 0,
-    currentOrder: null,
-    isLoading: false,
-    error: null,
-    orderRequest: false,
-    orderError: null
-  };
+  // const initialState = {
+  //   orders: [],
+  //   total: 0,
+  //   totalToday: 0,
+  //   currentOrder: null,
+  //   isLoading: false,
+  //   error: null,
+  //   orderRequest: false,
+  //   orderError: null
+  // };
+  it('должен вернуть начальное состояние', () => {
+    expect(orderReducer(undefined, { type: 'unknown' })).toEqual(initialState);
+  });
 
   // Тесты создания заказа
 

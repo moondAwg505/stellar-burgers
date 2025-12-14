@@ -6,6 +6,9 @@ import {
   resetConstructor
 } from './constructorSlice';
 
+import { initialState } from './constructorSlice';
+import constructorReducer from './constructorSlice';
+
 const mockIngredient = {
   _id: '123',
   id: 'test-uuid-1',
@@ -29,10 +32,16 @@ const mockBun = {
 };
 
 describe('Тесты для constructorSlice', () => {
-  const initialState = {
-    bun: null,
-    ingredients: []
-  };
+  // const initialState = {
+  //   bun: null,
+  //   ingredients: []
+  // };
+
+  it('должен вернуть начальное состояние', () => {
+    expect(constructorReducer(undefined, { type: 'unknown' })).toEqual(
+      initialState
+    );
+  });
 
   test('Должен вернуть начальное состояние', () => {
     const state = constructorBurgerSlice.reducer(undefined, {
