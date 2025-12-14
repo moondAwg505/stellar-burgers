@@ -1,10 +1,25 @@
 import { setCookie, getCookie } from './cookie';
 import { TIngredient, TOrder, TOrdersData, TUser } from './types';
 
+// Глобальные переменные для управления конкурентным обновлением токена
+let isRefreshing = false;
+let refreshTokenPromise: Promise<TRefreshResponse> | null = null; // Изменено: теперь хранит промис на TRefreshResponse
+
 const URL = process.env.BURGER_API_URL;
 
-const checkResponse = <T>(res: Response): Promise<T> =>
-  res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
+const checkResponse = <T>(res: Response): Promise<T> => {
+  // Вывод статуса ответа в консоль
+  console.log(`[API Response] URL: ${res.url}, Status: ${res.status}`);
+
+  if (res.ok) {
+    return res.json();
+  }
+
+  return res.json().then((err) => {
+    console.error(`[API Error] Response body:`, err);
+    return Promise.reject(err);
+  });
+};
 
 type TServerResponse<T> = {
   success: boolean;
@@ -38,21 +53,44 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
   options: RequestInit
-) => {
+): Promise<T> => {
   try {
     const res = await fetch(url, options);
-    return await checkResponse<T>(res);
+    return await checkResponse(res);
   } catch (err) {
-    if ((err as { message: string }).message === 'jwt expired') {
-      const refreshData = await refreshToken();
-      if (options.headers) {
-        (options.headers as { [key: string]: string }).authorization =
-          refreshData.accessToken;
+    const errorBody = err as { message?: string };
+
+    // Если ошибка — 403 (Forbidden) или токен истек
+    if (
+      errorBody.message === 'jwt expired' ||
+      errorBody.message === 'срок действия токена истек' ||
+      errorBody.message === 'Вы должны быть авторизованы'
+    ) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshTokenPromise = refreshToken();
       }
-      const res = await fetch(url, options);
+
+      await refreshTokenPromise;
+
+      isRefreshing = false;
+      refreshTokenPromise = null;
+
+      const newHeaders = {
+        ...options.headers,
+        authorization: getCookie('accessToken')
+      } as HeadersInit;
+
+      const newOptions = {
+        ...options,
+        headers: newHeaders
+      };
+
+      const res = await fetch(url, newOptions);
       return await checkResponse<T>(res);
     } else {
-      return Promise.reject(err);
+      // Если ошибка не связана с токеном, бросаем ее дальше
+      throw err;
     }
   }
 };
@@ -172,6 +210,7 @@ export const loginUserApi = (data: TLoginData) =>
   })
     .then((res) => checkResponse<TAuthResponse>(res))
     .then((data) => {
+      console.log('[Login Success] Пользователь авторизован:', data.user.email);
       if (data?.success) return data;
       return Promise.reject(data);
     });
@@ -233,3 +272,5 @@ export const logoutApi = () =>
       token: localStorage.getItem('refreshToken')
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
+
+export type { TOrder, TFeedsResponse };

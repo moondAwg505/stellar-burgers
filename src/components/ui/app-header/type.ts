@@ -1,3 +1,5 @@
-export type TAppHeaderUIProps = {
+import React from 'react';
+
+export type TAppHeaderUIProps = React.PropsWithChildren<{
   userName: string | undefined;
-};
+}>;
