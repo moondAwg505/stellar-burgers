@@ -9,7 +9,7 @@ type TIngredientsState = {
   error: string | null;
 };
 
-const initialState: TIngredientsState = {
+export const initialState: TIngredientsState = {
   ingredients: [],
   isLoading: false,
   error: null
@@ -46,14 +46,14 @@ export const ingredientsSlice = createSlice({
       .addCase(getIngredients.fulfilled, (state, action) => {
         state.isLoading = false;
         state.ingredients = action.payload; // Получение даных с сервера и отправка их в стор
-        console.log('Данные записаны в State:', action.payload);
+        // console.log('Данные записаны в State:', action.payload);
       })
 
       // если не прошёл успешно
       .addCase(getIngredients.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Ошибка загрузки ингредиентов';
-        console.error('Ошибка в слайсе:', state.error);
+        // console.error('Ошибка в слайсе:', state.error);
       });
   }
 });

@@ -1,7 +1,7 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "@typescript-eslint", "prettier"],
-  "extends": ["prettier"],
+  "plugins": ["react", "@typescript-eslint", "prettier", "cypress"],
+  "extends": ["prettier", "plugin:cypress/recommended"],
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
@@ -9,6 +9,20 @@
       "jsx": true
     }
   },
+  "overrides": [
+    {
+      // Применяем эти настройки только к файлам в папке Cypress
+      "files": ["cypress/e2e/**/*.js", "cypress/e2e/**/*.ts", "cypress/e2e/**/*.tsx"], 
+      "env": {
+        "cypress/globals": true // <-- Включаем глобальные переменные Cypress
+      },
+      "rules": {
+        // Здесь можно добавить правила, специфичные для тестов
+        "jest/valid-expect": "off", // Если ты смешиваешь jest и cypress
+        "cypress/no-unnecessary-waiting": "warn" // Пример правила Cypress
+      }
+    }
+  ],
   "rules": {
     "prettier/prettier": [
       "warn",
