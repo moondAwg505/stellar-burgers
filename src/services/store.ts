@@ -11,7 +11,7 @@ import {
 } from 'react-redux';
 import { useReducer } from 'react';
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   ingredients: ingredientsReducer,
   feed: feedReducer,
   burgerConstructor: constructorReducer,
